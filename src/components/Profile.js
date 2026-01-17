@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
-const Profile = ({ user }) => {
+const Profile = ({ user, updateProfile }) => {
   const [profile, setProfile] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -10,6 +11,7 @@ const Profile = ({ user }) => {
     experience: '',
     bio: ''
   });
+  const { t } = useLanguage();
 
   useEffect(() => {
     const savedProfile = JSON.parse(localStorage.getItem(`flexhire_profile_${user?.id}`));
@@ -20,7 +22,15 @@ const Profile = ({ user }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Save to local storage
     localStorage.setItem(`flexhire_profile_${user?.id}`, JSON.stringify(profile));
+    
+    // Update shared data through App.js
+    if (updateProfile) {
+      updateProfile(profile);
+    }
+    
     alert('Profile updated successfully!');
   };
 
@@ -39,16 +49,16 @@ const Profile = ({ user }) => {
         </div>
         <div className="profile-info">
           <h1>{profile.name}</h1>
-          <p>{user?.userType === 'jobSeeker' ? 'Skilled Worker' : 'Job Provider'}</p>
+          <p>{user?.userType === 'jobSeeker' ? t.skilledWorkerTitle : t.jobProvider}</p>
           <p>📍 {profile.location}</p>
         </div>
       </div>
 
       <div className="card">
-        <h2>Edit Profile</h2>
+        <h2>{t.editProfile}</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Full Name:</label>
+            <label>{t.fullName}:</label>
             <input
               type="text"
               name="name"
@@ -59,7 +69,7 @@ const Profile = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>Email:</label>
+            <label>{t.email}:</label>
             <input
               type="email"
               name="email"
@@ -70,7 +80,7 @@ const Profile = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>Phone Number:</label>
+            <label>{t.phoneNumber}:</label>
             <input
               type="tel"
               name="phone"
@@ -81,7 +91,7 @@ const Profile = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>Location:</label>
+            <label>{t.location}:</label>
             <input
               type="text"
               name="location"
@@ -94,18 +104,18 @@ const Profile = ({ user }) => {
           {user?.userType === 'jobSeeker' && (
             <>
               <div className="form-group">
-                <label>Skills:</label>
+                <label>{t.skills}:</label>
                 <input
                   type="text"
                   name="skills"
                   value={profile.skills}
                   onChange={handleChange}
-                  placeholder="Separate skills with commas"
+                  placeholder={t.skills}
                 />
               </div>
 
               <div className="form-group">
-                <label>Experience (in years):</label>
+                <label>{t.experienceYears}:</label>
                 <input
                   type="number"
                   name="experience"
@@ -118,25 +128,25 @@ const Profile = ({ user }) => {
           )}
 
           <div className="form-group">
-            <label>Bio:</label>
+            <label>{t.bio}:</label>
             <textarea
               name="bio"
               value={profile.bio}
               onChange={handleChange}
               rows="3"
-              placeholder="Tell us about yourself..."
+              placeholder={t.bioPlaceholder}
             />
           </div>
 
           <button type="submit" className="btn btn-primary">
-            Save Changes
+            {t.saveChanges}
           </button>
         </form>
       </div>
 
       {user?.userType === 'jobSeeker' && profile.skills && (
         <div className="card">
-          <h3>Your Skills</h3>
+          <h3>{t.yourSkills}</h3>
           <div className="skills-tags">
             {profile.skills.split(',').map((skill, index) => (
               <span key={index} className="skill-tag">

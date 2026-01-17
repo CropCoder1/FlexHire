@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const Register = () => {
     skills: ''
   });
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -37,74 +39,74 @@ const Register = () => {
     <div className="register-container">
       <div className="card" style={{ maxWidth: '500px', margin: '30px auto' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#4CAF50' }}>
-          FlexHire - Register
+          {t.appName} - {t.register}
         </h2>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Full Name:</label>
+            <label>{t.fullName}:</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="Enter your full name"
+              placeholder={t.fullName}
             />
           </div>
 
           <div className="form-group">
-            <label>Email:</label>
+            <label>{t.email}:</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
+              placeholder={t.email}
             />
           </div>
 
           <div className="form-group">
-            <label>Phone Number:</label>
+            <label>{t.phoneNumber}:</label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               required
-              placeholder="Enter your phone number"
+              placeholder={t.phoneNumber}
             />
           </div>
 
           <div className="form-group">
-            <label>Location (Village/Town):</label>
+            <label>{t.location}:</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
               required
-              placeholder="Enter your location"
+              placeholder={t.location}
             />
           </div>
 
           <div className="form-group">
-            <label>Register as:</label>
+            <label>{t.registerAs}:</label>
             <select
               name="userType"
               value={formData.userType}
               onChange={handleChange}
               required
             >
-              <option value="jobSeeker">Job Seeker (Skilled Worker)</option>
-              <option value="jobProvider">Job Provider</option>
+              <option value="jobSeeker">{t.skilledWorker}</option>
+              <option value="jobProvider">{t.jobProvider}</option>
             </select>
           </div>
 
           {formData.userType === 'jobSeeker' && (
             <div className="form-group">
-              <label>Skills (comma separated):</label>
+              <label>{t.skills}:</label>
               <input
                 type="text"
                 name="skills"
@@ -116,35 +118,35 @@ const Register = () => {
           )}
 
           <div className="form-group">
-            <label>Password:</label>
+            <label>{t.password}:</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter password"
+              placeholder={t.password}
             />
           </div>
 
           <div className="form-group">
-            <label>Confirm Password:</label>
+            <label>{t.confirmPassword}:</label>
             <input
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="Confirm password"
+              placeholder={t.confirmPassword}
             />
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            Register
+            {t.register}
           </button>
 
           <p style={{ textAlign: 'center', marginTop: '20px' }}>
-            Already have an account? <Link to="/login">Login here</Link>
+            {t.alreadyHaveAccount} <Link to="/login">{t.loginHere}</Link>
           </p>
         </form>
       </div>

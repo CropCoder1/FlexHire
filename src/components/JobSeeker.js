@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import dataManager from '../utils/dataManager';
 
 const JobSeeker = ({ user }) => {
   const [jobs, setJobs] = useState([]);
@@ -9,49 +11,48 @@ const JobSeeker = ({ user }) => {
     maxBudget: '',
     search: ''
   });
+  const { t } = useLanguage();
 
   useEffect(() => {
-    const savedJobs = JSON.parse(localStorage.getItem('flexhire_jobs')) || [];
-    setJobs(savedJobs.filter(job => job.status === 'open'));
+    // Load jobs from shared data
+    const allJobs = dataManager.getJobs();
+    setJobs(allJobs.filter(job => job.status === 'open'));
   }, []);
 
   const handleApply = (jobId) => {
+    // Check if already applied
+    const userApplications = dataManager.getApplicationsByUserId(user.id);
+    const alreadyApplied = userApplications.some(app => app.jobId === jobId);
+    
+    if (alreadyApplied) {
+      alert('You have already applied for this job!');
+      return;
+    }
+
+    // Create application in shared data
+    const application = {
+      id: Date.now(),
+      jobId: jobId,
+      userId: user.id,
+      appliedDate: new Date().toISOString(),
+      status: 'pending'
+    };
+
+    dataManager.addApplication(application);
+    
+    // Update local state to reflect application
     const updatedJobs = jobs.map(job => {
       if (job.id === jobId) {
-        const applicants = job.applicants || [];
-        if (!applicants.some(app => app.id === user.id)) {
-          applicants.push({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            appliedDate: new Date().toISOString()
-          });
-        }
-        return { ...job, applicants };
+        const jobApplications = dataManager.getApplicationsByJobId(jobId);
+        return { 
+          ...job, 
+          applicants: jobApplications 
+        };
       }
       return job;
     });
 
     setJobs(updatedJobs);
-    
-    const allJobs = JSON.parse(localStorage.getItem('flexhire_jobs')) || [];
-    const updatedAllJobs = allJobs.map(job => {
-      if (job.id === jobId) {
-        const applicants = job.applicants || [];
-        if (!applicants.some(app => app.id === user.id)) {
-          applicants.push({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            appliedDate: new Date().toISOString()
-          });
-        }
-        return { ...job, applicants };
-      }
-      return job;
-    });
-    
-    localStorage.setItem('flexhire_jobs', JSON.stringify(updatedAllJobs));
     alert('Applied successfully!');
   };
 
@@ -64,59 +65,77 @@ const JobSeeker = ({ user }) => {
     return true;
   });
 
+  // Check if user has applied for a job
+  const hasApplied = (jobId) => {
+    const userApplications = dataManager.getApplicationsByUserId(user.id);
+    return userApplications.some(app => app.jobId === jobId);
+  };
+
+  const categories = [
+    { value: 'all', label: t.allCategories },
+    { value: 'construction', label: t.construction },
+    { value: 'electrical', label: t.electrical },
+    { value: 'plumbing', label: t.plumbing },
+    { value: 'agriculture', label: t.agriculture },
+    { value: 'repair', label: t.repair },
+    { value: 'cleaning', label: t.cleaning }
+  ];
+
+  const durations = [
+    { value: 'all', label: t.allDurations },
+    { value: 'hourly', label: t.hourly },
+    { value: 'daily', label: t.daily },
+    { value: 'weekly', label: t.weekly },
+    { value: 'monthly', label: t.monthly }
+  ];
+
   return (
     <div className="container">
-      <h1>Available Jobs</h1>
-      <p>Find work that matches your skills</p>
+      <h1>{t.availableJobs}</h1>
+      <p>{t.findWorkMatches}</p>
 
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3>Filter Jobs</h3>
+        <h3>{t.filterJobs}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
           <div className="form-group">
-            <label>Category:</label>
+            <label>{t.category}:</label>
             <select
               value={filters.category}
               onChange={(e) => setFilters({...filters, category: e.target.value})}
             >
-              <option value="all">All Categories</option>
-              <option value="construction">Construction</option>
-              <option value="electrical">Electrical</option>
-              <option value="plumbing">Plumbing</option>
-              <option value="agriculture">Agriculture</option>
-              <option value="repair">Repair</option>
-              <option value="cleaning">Cleaning</option>
+              {categories.map(cat => (
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label>Location:</label>
+            <label>{t.location}:</label>
             <input
               type="text"
-              placeholder="Enter location"
+              placeholder={t.location}
               value={filters.location}
               onChange={(e) => setFilters({...filters, location: e.target.value})}
             />
           </div>
 
           <div className="form-group">
-            <label>Duration:</label>
+            <label>{t.duration}:</label>
             <select
               value={filters.duration}
               onChange={(e) => setFilters({...filters, duration: e.target.value})}
             >
-              <option value="all">All Durations</option>
-              <option value="hourly">Hourly</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              {durations.map(dur => (
+                <option key={dur.value} value={dur.value}>{dur.label}</option>
+              ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label>Max Budget (₹):</label>
+            <label>{t.maxBudget}:</label>
             <input
               type="number"
-              placeholder="Max budget"
+              placeholder={t.maxBudget}
               value={filters.maxBudget}
               onChange={(e) => setFilters({...filters, maxBudget: e.target.value})}
             />
@@ -124,10 +143,10 @@ const JobSeeker = ({ user }) => {
         </div>
 
         <div className="form-group" style={{ marginTop: '15px' }}>
-          <label>Search:</label>
+          <label>{t.search}:</label>
           <input
             type="text"
-            placeholder="Search by job title..."
+            placeholder={t.searchPlaceholder}
             value={filters.search}
             onChange={(e) => setFilters({...filters, search: e.target.value})}
             style={{ width: '100%' }}
@@ -138,61 +157,69 @@ const JobSeeker = ({ user }) => {
       <div className="jobs-list">
         {filteredJobs.length === 0 ? (
           <div className="card">
-            <p style={{ textAlign: 'center' }}>No jobs found matching your criteria</p>
+            <p style={{ textAlign: 'center' }}>{t.noJobsFound}</p>
           </div>
         ) : (
-          filteredJobs.map(job => (
-            <div key={job.id} className="card" style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3>{job.title}</h3>
-                  <p style={{ color: '#666', marginBottom: '10px' }}>Posted by: {job.providerName}</p>
-                  <p>{job.description}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ 
-                    backgroundColor: job.urgency === 'urgent' ? '#ff9800' : 
-                                   job.urgency === 'very-urgent' ? '#f44336' : '#4CAF50',
-                    color: 'white',
-                    padding: '5px 10px',
-                    borderRadius: '3px',
-                    fontSize: '12px',
-                    marginBottom: '10px'
-                  }}>
-                    {job.urgency.toUpperCase()}
+          filteredJobs.map(job => {
+            const jobApplicants = dataManager.getApplicationsByJobId(job.id);
+            const hasUserApplied = hasApplied(job.id);
+            
+            return (
+              <div key={job.id} className="card" style={{ marginBottom: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h3>{job.title}</h3>
+                    <p style={{ color: '#666', marginBottom: '10px' }}>{t.postedBy}: {job.providerName}</p>
+                    <p>{job.description}</p>
                   </div>
-                  <div style={{ color: '#FFD700', fontSize: '20px' }}>
-                    {'★'.repeat(4)}☆
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ 
+                      backgroundColor: job.urgency === 'urgent' ? '#ff9800' : 
+                                     job.urgency === 'very-urgent' ? '#f44336' : '#4CAF50',
+                      color: 'white',
+                      padding: '5px 10px',
+                      borderRadius: '3px',
+                      fontSize: '12px',
+                      marginBottom: '10px'
+                    }}>
+                      {job.urgency.toUpperCase()}
+                    </div>
+                    <div style={{ color: '#FFD700', fontSize: '20px' }}>
+                      {'★'.repeat(4)}☆
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                marginTop: '15px',
-                paddingTop: '15px',
-                borderTop: '1px solid #eee'
-              }}>
-                <div>
-                  <span style={{ marginRight: '20px' }}><strong>Location:</strong> {job.location}</span>
-                  <span style={{ marginRight: '20px' }}><strong>Category:</strong> {job.category}</span>
-                  <span style={{ marginRight: '20px' }}><strong>Duration:</strong> {job.durationValue} {job.duration}</span>
-                  <span><strong>Skills:</strong> {job.skillsRequired}</span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <h3 style={{ color: '#4CAF50' }}>₹{job.budget}</h3>
-                  <button 
-                    onClick={() => handleApply(job.id)}
-                    className="btn btn-primary"
-                    disabled={job.applicants?.some(app => app.id === user.id)}
-                  >
-                    {job.applicants?.some(app => app.id === user.id) ? 'Applied ✓' : 'Apply Now'}
-                  </button>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  marginTop: '15px',
+                  paddingTop: '15px',
+                  borderTop: '1px solid #eee'
+                }}>
+                  <div>
+                    <span style={{ marginRight: '20px' }}><strong>{t.location}:</strong> {job.location}</span>
+                    <span style={{ marginRight: '20px' }}><strong>{t.category}:</strong> {job.category}</span>
+                    <span style={{ marginRight: '20px' }}><strong>{t.durationType}:</strong> {job.durationValue} {job.duration}</span>
+                    <span><strong>{t.skillsRequired}:</strong> {job.skillsRequired}</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <h3 style={{ color: '#4CAF50' }}>₹{job.budget}</h3>
+                    <button 
+                      onClick={() => handleApply(job.id)}
+                      className="btn btn-primary"
+                      disabled={hasUserApplied}
+                    >
+                      {hasUserApplied ? t.applied : t.applyNow}
+                    </button>
+                    <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                      {jobApplicants.length} {t.applicants.toLowerCase()} so far
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
