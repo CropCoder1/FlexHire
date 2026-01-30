@@ -165,38 +165,51 @@ const JobProvider = ({ user }) => {
 
   return (
     <div className="container">
-      <h1>{t.postJob}</h1>
-      <p>{t.findSkilledWorkers}</p>
+      <h1>➕ {t.postJob}</h1>
+      <p>👥 {t.findSkilledWorkers}</p>
 
-      <div className="card">
-        <h2>{t.jobDetails}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>{t.jobTitle}:</label>
+      {/* Post Job Form */}
+      <div className="card" style={{ marginBottom: '30px' }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          📋 {t.jobDetails}
+        </h2>
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label>✏️ {t.jobTitle}</label>
             <input
               type="text"
               name="title"
               value={jobForm.title}
               onChange={handleChange}
               required
-              placeholder={t.jobTitle}
+              placeholder="e.g., Carpenter needed for home renovation"
             />
           </div>
 
-          <div className="form-group">
-            <label>{t.description}:</label>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label>📝 {t.description}</label>
             <textarea
               name="description"
               value={jobForm.description}
               onChange={handleChange}
               required
               rows="4"
-              placeholder={t.description}
+              placeholder="Describe the job details..."
+              style={{
+                padding: '12px 15px',
+                border: '2px solid #e0e0e0',
+                borderRadius: '8px',
+                fontFamily: 'inherit',
+                fontSize: '14px',
+                transition: 'all 0.3s ease',
+                backgroundColor: '#f9f9f9',
+                resize: 'vertical'
+              }}
             />
           </div>
 
           <div className="form-group">
-            <label>{t.category}:</label>
+            <label>📂 {t.category}</label>
             <select
               name="category"
               value={jobForm.category}
@@ -211,71 +224,58 @@ const JobProvider = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>{t.location}:</label>
+            <label>📍 {t.location}</label>
             <input
               type="text"
               name="location"
               value={jobForm.location}
               onChange={handleChange}
               required
-              placeholder={t.location}
+              placeholder="City, Area"
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>{t.durationType}:</label>
-              <select
-                name="duration"
-                value={jobForm.duration}
-                onChange={handleChange}
-                required
-              >
-                {durations.map(dur => (
-                  <option key={dur.value} value={dur.value}>{dur.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group" style={{ flex: 1 }}>
-              <label>{t.durationValue}:</label>
-              <input
-                type="number"
-                name="durationValue"
-                value={jobForm.durationValue}
-                onChange={handleChange}
-                required
-                min="1"
-                placeholder="e.g., 2"
-              />
-            </div>
+          <div className="form-group">
+            <label>⏱️ {t.durationType}</label>
+            <select
+              name="duration"
+              value={jobForm.duration}
+              onChange={handleChange}
+              required
+            >
+              {durations.map(dur => (
+                <option key={dur.value} value={dur.value}>{dur.label}</option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
-            <label>{t.budget}:</label>
+            <label>🔢 {t.durationValue}</label>
+            <input
+              type="number"
+              name="durationValue"
+              value={jobForm.durationValue}
+              onChange={handleChange}
+              required
+              min="1"
+              placeholder="2"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>💰 {t.budget}</label>
             <input
               type="number"
               name="budget"
               value={jobForm.budget}
               onChange={handleChange}
               required
-              placeholder={t.budget}
+              placeholder="Enter amount in rupees"
             />
           </div>
 
           <div className="form-group">
-            <label>{t.skillsRequired}:</label>
-            <input
-              type="text"
-              name="skillsRequired"
-              value={jobForm.skillsRequired}
-              onChange={handleChange}
-              placeholder={t.skillsRequired}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>{t.urgency}:</label>
+            <label>🚨 {t.urgency}</label>
             <select
               name="urgency"
               value={jobForm.urgency}
@@ -287,104 +287,125 @@ const JobProvider = ({ user }) => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            {t.postJob}
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label>🎯 {t.skillsRequired}</label>
+            <input
+              type="text"
+              name="skillsRequired"
+              value={jobForm.skillsRequired}
+              onChange={handleChange}
+              placeholder="e.g., Carpentry, Electrical, Plumbing"
+            />
+          </div>
+
+          <button type="submit" className="register-btn" style={{ gridColumn: '1 / -1' }}>
+            <span className="btn-text">🚀 {t.postJob}</span>
+            <span className="btn-icon">→</span>
           </button>
         </form>
       </div>
 
+      {/* Your Posted Jobs */}
       {postedJobs.length > 0 && (
-        <div className="card" style={{ marginTop: '30px' }}>
-          <h2>{t.yourPostedJobs}</h2>
-          <div className="job-list">
+        <div className="card">
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            📌 {t.yourPostedJobs}
+          </h2>
+          <div className="jobs-list">
             {postedJobs.map(job => {
               const jobApplicants = dataManager.getApplicationsByJobId(job.id);
               const applicantCount = jobApplicants.length;
               
               return (
-                <div key={job.id} className="job-card" style={{ 
-                  border: '1px solid #ddd', 
-                  padding: '15px', 
-                  margin: '10px 0', 
-                  borderRadius: '5px' 
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
+                <div key={job.id} className="job-card">
+                  <div className="job-header">
+                    <div style={{ flex: 1 }}>
                       <h3>{job.title}</h3>
-                      <p>{job.description}</p>
-                      <div style={{ display: 'flex', gap: '15px', marginTop: '10px', flexWrap: 'wrap' }}>
-                        <span><strong>{t.location}:</strong> {job.location}</span>
-                        <span><strong>{t.budget}:</strong> ₹{job.budget}</span>
-                        <span><strong>{t.durationType}:</strong> {job.durationValue} {job.duration}</span>
-                        <span style={{
-                          backgroundColor: job.status === 'open' ? '#4CAF50' : 
-                                         job.status === 'in-progress' ? '#ff9800' : '#666',
-                          color: 'white',
-                          padding: '3px 10px',
-                          borderRadius: '3px',
-                          fontSize: '12px'
-                        }}>
-                          {job.status === 'open' ? 'Open' : 
-                           job.status === 'in-progress' ? 'In Progress' : 'Completed'}
-                        </span>
-                      </div>
+                      <p style={{ color: '#666', margin: '8px 0' }}>{job.description}</p>
                     </div>
-                    <div>
-                      <span style={{ 
-                        backgroundColor: job.urgency === 'urgent' ? '#ff9800' : 
-                                       job.urgency === 'very-urgent' ? '#f44336' : '#4CAF50',
-                        color: 'white',
-                        padding: '5px 10px',
-                        borderRadius: '3px',
-                        fontSize: '12px',
-                        display: 'block',
-                        marginBottom: '10px'
-                      }}>
-                        {job.urgency.toUpperCase()}
+                    <div style={{ textAlign: 'right' }}>
+                      <span className={`urgency-badge ${job.urgency || 'normal'}`}>
+                        {job.urgency?.toUpperCase() || 'NORMAL'}
                       </span>
-                      <div style={{ 
-                        backgroundColor: applicantCount > 0 ? '#2196F3' : '#999', 
-                        color: 'white', 
-                        padding: '5px 10px',
-                        borderRadius: '3px',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        marginBottom: '10px'
-                      }}>
-                        {applicantCount} {t.applicants}
-                      </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                    <button 
-                      onClick={() => handleViewApplicants(job)}
-                      className="btn btn-primary"
-                      disabled={applicantCount === 0}
-                    >
-                      {t.viewApplicants} ({applicantCount})
-                    </button>
-                    
-                    {job.status === 'in-progress' && (
+                  <div className="job-details">
+                    <div className="detail-item">
+                      <strong>📍 {t.location}</strong>
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>🏷️ {t.category}</strong>
+                      <span>{job.category}</span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>⏱️ {t.durationType}</strong>
+                      <span>{job.durationValue} {job.duration}</span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>📊 {t.jobStatus}</strong>
+                      <span style={{
+                        backgroundColor: job.status === 'open' ? '#667eea' : 
+                                       job.status === 'in-progress' ? '#ffb74d' : '#999',
+                        color: 'white',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        display: 'inline-block',
+                        fontWeight: '600'
+                      }}>
+                        {job.status === 'open' ? '🟢 Open' : 
+                         job.status === 'in-progress' ? '🟡 In Progress' : '⚫ Completed'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="job-footer">
+                    <div className="job-provider">
+                      <strong style={{ color: '#999' }}>{t.budget}</strong>
+                      <span style={{ fontSize: '20px', fontWeight: '700', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        ₹{job.budget}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <div style={{ 
+                        backgroundColor: applicantCount > 0 ? '#667eea' : '#ddd', 
+                        color: applicantCount > 0 ? 'white' : '#999',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        minWidth: '80px'
+                      }}>
+                        {applicantCount} 👤
+                      </div>
                       <button 
-                        onClick={() => handleCompleteJob(job.id)}
-                        className="btn"
-                        style={{ backgroundColor: '#4CAF50', color: 'white' }}
+                        onClick={() => handleViewApplicants(job)}
+                        className="btn btn-primary"
+                        disabled={applicantCount === 0}
+                        style={{ opacity: applicantCount === 0 ? 0.5 : 1 }}
                       >
-                        {t.markAsCompleted}
+                        👥 {t.viewApplicants}
                       </button>
-                    )}
-                    
-                    <button 
-                      onClick={() => handleDeleteJob(job.id)}
-                      className="btn" 
-                      style={{ 
-                        backgroundColor: '#f44336', 
-                        color: 'white'
-                      }}
-                    >
-                      {t.deleteJob}
-                    </button>
+                      
+                      {job.status === 'in-progress' && (
+                        <button 
+                          onClick={() => handleCompleteJob(job.id)}
+                          className="btn btn-secondary"
+                        >
+                          ✅ {t.markAsCompleted}
+                        </button>
+                      )}
+                      
+                      <button 
+                        onClick={() => handleDeleteJob(job.id)}
+                        className="btn btn-danger"
+                      >
+                        🗑️ {t.deleteJob}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -395,180 +416,106 @@ const JobProvider = ({ user }) => {
 
       {/* Applicant Modal */}
       {selectedJob && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '10px',
-            maxWidth: '600px',
-            width: '90%',
-            maxHeight: '80vh',
-            overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2>{t.applicants} for: {selectedJob.title}</h2>
-              <button 
-                onClick={handleCloseApplicants}
-                style={{
-                  backgroundColor: '#f44336',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 15px',
-                  borderRadius: '5px',
-                  cursor: 'pointer'
-                }}
-              >
-                Close
-              </button>
-            </div>
+        <div className="modal-overlay" onClick={handleCloseApplicants}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={handleCloseApplicants}>✕</button>
+            
+            <h2 style={{ marginTop: '0', marginBottom: '10px' }}>
+              👥 {t.applicants} for: <span style={{ color: '#667eea' }}>{selectedJob.title}</span>
+            </h2>
+            <p style={{ color: '#999', marginBottom: '25px' }}>
+              Total applicants: <strong>{applicants.length}</strong>
+            </p>
 
             {applicants.length > 0 ? (
               <div>
-                <p style={{ marginBottom: '20px' }}>Total {t.applicants}: {applicants.length}</p>
-                
-                {applicants.map((applicant, index) => {
+                {applicants.map((applicant) => {
                   const applicantUser = dataManager.getUserById(applicant.userId);
+                  const isSelected = selectedJob.selectedApplicantId === applicant.userId;
+                  
                   return (
-                    <div key={applicant.id} style={{
-                      border: '1px solid #ddd',
-                      padding: '15px',
-                      marginBottom: '15px',
-                      borderRadius: '5px',
-                      backgroundColor: selectedJob.selectedApplicantId === applicant.userId ? '#e8f5e9' : 'white'
+                    <div key={applicant.id} className="applicant-card" style={{
+                      backgroundColor: isSelected ? '#f0f3ff' : '#f9f9f9',
+                      borderLeft: isSelected ? '4px solid #667eea' : '4px solid #ddd'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <h4 style={{ margin: '0 0 5px 0' }}>
-                            {applicantUser ? applicantUser.name : 'Unknown User'}
-                          </h4>
-                          <p style={{ margin: '0 0 5px 0', color: '#666' }}>
-                            {applicantUser ? applicantUser.email : 'No email'}
-                          </p>
-                          {applicantUser?.skills && (
-                            <p style={{ margin: '0 0 5px 0', fontSize: '14px' }}>
-                              <strong>Skills:</strong> {applicantUser.skills}
-                            </p>
-                          )}
-                          <p style={{ margin: '0', fontSize: '12px', color: '#999' }}>
-                            Applied on: {new Date(applicant.appliedDate).toLocaleDateString()}
-                          </p>
+                      <div style={{ flex: 1 }}>
+                        <div className="applicant-name">
+                          {isSelected && '⭐ '} {applicantUser ? applicantUser.name : 'Unknown User'}
                         </div>
-                        
+                        <div className="applicant-detail">
+                          📧 {applicantUser ? applicantUser.email : 'No email'}
+                        </div>
+                        {applicantUser?.skills && (
+                          <div className="applicant-detail">
+                            🔧 <strong>Skills:</strong> {applicantUser.skills}
+                          </div>
+                        )}
+                        <div className="applicant-detail" style={{ fontSize: '12px', marginTop: '5px' }}>
+                          📅 Applied on {new Date(applicant.appliedDate).toLocaleDateString()}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
                         {selectedJob.status === 'open' && (
                           <button
                             onClick={() => handleSelectApplicant(applicant.userId)}
-                            className="btn btn-primary"
+                            className={`btn ${isSelected ? 'btn-secondary' : 'btn-primary'}`}
+                            style={{ fontSize: '12px', padding: '8px 12px' }}
                           >
-                            {t.selectApplicant}
+                            {isSelected ? '✅ Selected' : '➕ Select'}
                           </button>
                         )}
                         
-                        {selectedJob.selectedApplicantId === applicant.userId && (
+                        {isSelected && (
                           <span style={{
-                            backgroundColor: '#4CAF50',
+                            backgroundColor: '#667eea',
                             color: 'white',
-                            padding: '5px 10px',
-                            borderRadius: '3px',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
                             fontSize: '12px',
-                            fontWeight: 'bold'
+                            fontWeight: '700',
+                            textAlign: 'center'
                           }}>
-                            {t.selected}
+                            ⭐ {t.selected}
                           </span>
                         )}
-                      </div>
-                      
-                      <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
-                        <button
-                          onClick={() => {
-                            if (applicantUser) {
-                              alert(
-                                `Applicant Profile:\n` +
-                                `Name: ${applicantUser.name}\n` +
-                                `Email: ${applicantUser.email}\n` +
-                                `Skills: ${applicantUser.skills || 'Not specified'}\n` +
-                                `Location: ${applicantUser.location || 'Not specified'}\n` +
-                                `Applied on: ${new Date(applicant.appliedDate).toLocaleDateString()}`
-                              );
-                            }
-                          }}
-                          style={{
-                            backgroundColor: 'transparent',
-                            color: '#2196F3',
-                            border: '1px solid #2196F3',
-                            padding: '5px 15px',
-                            borderRadius: '3px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          {t.viewProfile}
-                        </button>
-                        
-                        <button
-                          onClick={() => {
-                            if (applicantUser) {
-                              alert(
-                                `Contact Information:\n` +
-                                `Name: ${applicantUser.name}\n` +
-                                `Email: ${applicantUser.email}\n` +
-                                `Phone: ${applicantUser.phone || 'Not provided'}\n\n` +
-                                `You can contact them directly at their email address.`
-                              );
-                            }
-                          }}
-                          style={{
-                            backgroundColor: 'transparent',
-                            color: '#4CAF50',
-                            border: '1px solid #4CAF50',
-                            padding: '5px 15px',
-                            borderRadius: '3px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            marginLeft: '10px'
-                          }}
-                        >
-                          {t.contact}
-                        </button>
                       </div>
                     </div>
                   );
                 })}
                 
-                <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #eee' }}>
-                  <h4>{t.jobStatus}: 
+                <div style={{ marginTop: '30px', paddingTop: '25px', borderTop: '2px solid #eee' }}>
+                  <h4 style={{ marginBottom: '15px' }}>
+                    📊 Job Status: 
                     <span style={{
-                      color: selectedJob.status === 'open' ? '#4CAF50' : 
-                            selectedJob.status === 'in-progress' ? '#ff9800' : '#666',
-                      marginLeft: '10px'
+                      color: selectedJob.status === 'open' ? '#667eea' : 
+                            selectedJob.status === 'in-progress' ? '#ffb74d' : '#999',
+                      marginLeft: '10px',
+                      fontWeight: '700'
                     }}>
-                      {selectedJob.status === 'open' ? t.open : 
-                       selectedJob.status === 'in-progress' ? t.inProgress : t.completed}
+                      {selectedJob.status === 'open' ? '🟢 Open' : 
+                       selectedJob.status === 'in-progress' ? '🟡 In Progress' : '⚫ Completed'}
                     </span>
                   </h4>
                   
                   {selectedJob.selectedApplicantId && (
-                    <p>{t.selected} {t.applicants}: {
-                      applicants.find(a => a.userId === selectedJob.selectedApplicantId) ? 
-                      dataManager.getUserById(selectedJob.selectedApplicantId)?.name || 'Unknown' : 'Unknown'
-                    }</p>
+                    <p style={{ color: '#667eea', fontWeight: '600' }}>
+                      ⭐ Selected applicant: {
+                        applicants.find(a => a.userId === selectedJob.selectedApplicantId) ? 
+                        dataManager.getUserById(selectedJob.selectedApplicantId)?.name || 'Unknown' : 'Unknown'
+                      }
+                    </p>
                   )}
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px' }}>
-                <p>No {t.applicants.toLowerCase()} yet for this job.</p>
-                <p style={{ color: '#666' }}>Share your job posting to get more {t.applicants.toLowerCase()}.</p>
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <p style={{ fontSize: '18px', color: '#999', margin: '0' }}>
+                  😔 No applicants yet
+                </p>
+                <p style={{ fontSize: '14px', color: '#bbb', margin: '10px 0 0 0' }}>
+                  Share your job posting to get more applicants
+                </p>
               </div>
             )}
           </div>

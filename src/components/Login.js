@@ -9,13 +9,32 @@ const Login = ({ onLogin }) => {
     userType: 'jobSeeker'
   });
   
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [focusedField, setFocusedField] = useState('');
   
   const navigate = useNavigate();
   const { t, language, changeLanguage, languages } = useLanguage();
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+    
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newErrors = validateForm();
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     
     const userData = {
       id: Date.now(),
@@ -32,10 +51,17 @@ const Login = ({ onLogin }) => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
   };
 
   const handleLanguageChange = (langCode) => {
@@ -45,7 +71,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
-      {/* Language Selector - Fixed Position */}
+      {/* Language Selector */}
       <div style={{ 
         position: 'absolute', 
         top: '20px', 
@@ -56,16 +82,24 @@ const Login = ({ onLogin }) => {
           <button 
             onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
             style={{
-              backgroundColor: '#4CAF50',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
               color: 'white',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '4px',
+              border: '2px solid rgba(255,255,255,0.3)',
+              padding: '10px 16px',
+              borderRadius: '8px',
               cursor: 'pointer',
-              fontWeight: 'bold',
+              fontWeight: '600',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(10px)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.2) 100%)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)';
             }}
           >
             <span>{languages.find(lang => lang.code === language)?.flag || '🌐'}</span>
@@ -79,11 +113,13 @@ const Login = ({ onLogin }) => {
               top: '100%',
               right: 0,
               backgroundColor: 'white',
-              borderRadius: '4px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+              borderRadius: '10px',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
               zIndex: 1000,
-              minWidth: '150px',
-              marginTop: '5px'
+              minWidth: '160px',
+              marginTop: '8px',
+              overflow: 'hidden',
+              animation: 'slideUp 0.3s ease-out'
             }}>
               {languages.map((lang) => (
                 <button
@@ -91,18 +127,27 @@ const Login = ({ onLogin }) => {
                   onClick={() => handleLanguageChange(lang.code)}
                   style={{
                     width: '100%',
-                    padding: '10px 15px',
+                    padding: '12px 16px',
                     border: 'none',
-                    backgroundColor: language === lang.code ? '#f0f0f0' : 'white',
+                    backgroundColor: language === lang.code ? '#f0f3ff' : 'white',
                     cursor: 'pointer',
                     textAlign: 'left',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    borderBottom: '1px solid #eee'
+                    borderBottom: '1px solid #f0f0f0',
+                    transition: 'all 0.2s ease',
+                    fontWeight: language === lang.code ? '700' : '500',
+                    color: language === lang.code ? '#667eea' : '#333'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#f9f9f9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = language === lang.code ? '#f0f3ff' : 'white';
                   }}
                 >
-                  <span>{lang.flag}</span>
+                  <span style={{ fontSize: '20px' }}>{lang.flag}</span>
                   <span>{lang.name}</span>
                 </button>
               ))}
@@ -111,55 +156,89 @@ const Login = ({ onLogin }) => {
         </div>
       </div>
 
-      <div className="card" style={{ maxWidth: '400px', margin: '50px auto' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#4CAF50' }}>
-          {t.appName} - {t.login}
-        </h2>
+      <div className="login-card">
+        <div className="login-header">
+          <div className="logo-badge">🔑</div>
+          <h1 className="login-title">🔑 {t.login}</h1>
+          <p className="register-subtitle">👋 Welcome back to {t.appName}</p>
+        </div>
         
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>{t.email}:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder={t.email}
-            />
+        <form onSubmit={handleSubmit} className="login-form">
+          {/* Email Field */}
+          <div className={`form-group ${focusedField === 'email' ? 'focused' : ''} ${errors.email ? 'error' : ''}`}>
+            <label>✉️ {t.email}</label>
+            <div className="input-wrapper">
+              <span className="input-icon">✉️</span>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField('')}
+                placeholder="your@email.com"
+              />
+            </div>
+            {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
-          <div className="form-group">
-            <label>{t.password}:</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder={t.password}
-            />
+          {/* Password Field */}
+          <div className={`form-group ${focusedField === 'password' ? 'focused' : ''} ${errors.password ? 'error' : ''}`}>
+            <label>🔒 {t.password}</label>
+            <div className="input-wrapper">
+              <span className="input-icon">🔒</span>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField('')}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
 
-          <div className="form-group">
-            <label>{t.loginAs}:</label>
-            <select
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              required
-            >
-              <option value="jobSeeker">{t.jobSeeker}</option>
-              <option value="jobProvider">{t.jobProvider}</option>
-            </select>
+          {/* User Type Selection */}
+          <div className={`form-group ${focusedField === 'userType' ? 'focused' : ''}`}>
+            <label>🎯 {t.loginAs}</label>
+            <div className="user-type-selector">
+              <button
+                type="button"
+                className={`type-btn ${formData.userType === 'jobSeeker' ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, userType: 'jobSeeker' })}
+              >
+                <span className="type-icon">👨‍💼</span>
+                <span className="type-label">{t.skilledWorker}</span>
+              </button>
+              <button
+                type="button"
+                className={`type-btn ${formData.userType === 'jobProvider' ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, userType: 'jobProvider' })}
+              >
+                <span className="type-icon">🏢</span>
+                <span className="type-label">{t.jobProvider}</span>
+              </button>
+            </div>
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            {t.login}
+          {/* Submit Button */}
+          <button type="submit" className="register-btn">
+            <span className="btn-text">🎉 {t.login}</span>
+            <span className="btn-icon">→</span>
           </button>
 
-          <p style={{ textAlign: 'center', marginTop: '20px' }}>
-            {t.dontHaveAccount} <Link to="/register">{t.registerHere}</Link>
+          {/* Register Link */}
+          <p className="login-link">
+            {t.dontHaveAccount} <Link to="/register">✨ {t.registerHere}</Link>
           </p>
         </form>
       </div>

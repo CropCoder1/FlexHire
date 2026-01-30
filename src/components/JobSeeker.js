@@ -91,14 +91,17 @@ const JobSeeker = ({ user }) => {
 
   return (
     <div className="container">
-      <h1>{t.availableJobs}</h1>
+      <h1>🔍 {t.availableJobs}</h1>
       <p>{t.findWorkMatches}</p>
 
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3>{t.filterJobs}</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+      {/* Filter Section */}
+      <div className="filter-section">
+        <h3 style={{ marginTop: '0', marginBottom: '20px', color: '#333' }}>
+          🎯 {t.filterJobs}
+        </h3>
+        <div className="filter-grid">
           <div className="form-group">
-            <label>{t.category}:</label>
+            <label>📂 {t.category}</label>
             <select
               value={filters.category}
               onChange={(e) => setFilters({...filters, category: e.target.value})}
@@ -110,7 +113,7 @@ const JobSeeker = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>{t.location}:</label>
+            <label>📍 {t.location}</label>
             <input
               type="text"
               placeholder={t.location}
@@ -120,7 +123,7 @@ const JobSeeker = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>{t.duration}:</label>
+            <label>⏱️ {t.duration}</label>
             <select
               value={filters.duration}
               onChange={(e) => setFilters({...filters, duration: e.target.value})}
@@ -132,7 +135,7 @@ const JobSeeker = ({ user }) => {
           </div>
 
           <div className="form-group">
-            <label>{t.maxBudget}:</label>
+            <label>💰 {t.maxBudget}</label>
             <input
               type="number"
               placeholder={t.maxBudget}
@@ -142,22 +145,28 @@ const JobSeeker = ({ user }) => {
           </div>
         </div>
 
-        <div className="form-group" style={{ marginTop: '15px' }}>
-          <label>{t.search}:</label>
+        <div className="form-group">
+          <label>🔎 {t.search}</label>
           <input
             type="text"
+            className="search-bar"
             placeholder={t.searchPlaceholder}
             value={filters.search}
             onChange={(e) => setFilters({...filters, search: e.target.value})}
-            style={{ width: '100%' }}
           />
         </div>
       </div>
 
+      {/* Jobs List */}
       <div className="jobs-list">
         {filteredJobs.length === 0 ? (
-          <div className="card">
-            <p style={{ textAlign: 'center' }}>{t.noJobsFound}</p>
+          <div className="card" style={{ textAlign: 'center', padding: '50px' }}>
+            <p style={{ fontSize: '18px', color: '#999', margin: '0' }}>
+              😔 {t.noJobsFound}
+            </p>
+            <p style={{ fontSize: '14px', color: '#bbb', margin: '10px 0 0 0' }}>
+              Try adjusting your filters to find more jobs
+            </p>
           </div>
         ) : (
           filteredJobs.map(job => {
@@ -165,56 +174,60 @@ const JobSeeker = ({ user }) => {
             const hasUserApplied = hasApplied(job.id);
             
             return (
-              <div key={job.id} className="card" style={{ marginBottom: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
+              <div key={job.id} className="job-card">
+                <div className="job-header">
+                  <div style={{ flex: 1 }}>
                     <h3>{job.title}</h3>
-                    <p style={{ color: '#666', marginBottom: '10px' }}>{t.postedBy}: {job.providerName}</p>
-                    <p>{job.description}</p>
+                    <p style={{ color: '#666', margin: '5px 0', fontSize: '13px' }}>
+                      Posted by <strong>{job.providerName}</strong>
+                    </p>
+                    <p style={{ color: '#666', margin: '8px 0' }}>{job.description}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ 
-                      backgroundColor: job.urgency === 'urgent' ? '#ff9800' : 
-                                     job.urgency === 'very-urgent' ? '#f44336' : '#4CAF50',
-                      color: 'white',
-                      padding: '5px 10px',
-                      borderRadius: '3px',
-                      fontSize: '12px',
-                      marginBottom: '10px'
-                    }}>
-                      {job.urgency.toUpperCase()}
-                    </div>
-                    <div style={{ color: '#FFD700', fontSize: '20px' }}>
-                      {'★'.repeat(4)}☆
-                    </div>
+                    <span className={`urgency-badge ${job.urgency || 'normal'}`}>
+                      {job.urgency?.toUpperCase() || 'NORMAL'}
+                    </span>
                   </div>
                 </div>
 
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  marginTop: '15px',
-                  paddingTop: '15px',
-                  borderTop: '1px solid #eee'
-                }}>
-                  <div>
-                    <span style={{ marginRight: '20px' }}><strong>{t.location}:</strong> {job.location}</span>
-                    <span style={{ marginRight: '20px' }}><strong>{t.category}:</strong> {job.category}</span>
-                    <span style={{ marginRight: '20px' }}><strong>{t.durationType}:</strong> {job.durationValue} {job.duration}</span>
-                    <span><strong>{t.skillsRequired}:</strong> {job.skillsRequired}</span>
+                <div className="job-details">
+                  <div className="detail-item">
+                    <strong>📍 {t.location}</strong>
+                    <span>{job.location}</span>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <h3 style={{ color: '#4CAF50' }}>₹{job.budget}</h3>
+                  <div className="detail-item">
+                    <strong>🏷️ {t.category}</strong>
+                    <span>{job.category}</span>
+                  </div>
+                  <div className="detail-item">
+                    <strong>⏱️ {t.durationType}</strong>
+                    <span>{job.durationValue} {job.duration}</span>
+                  </div>
+                  <div className="detail-item">
+                    <strong>🔧 {t.skillsRequired}</strong>
+                    <span>{job.skillsRequired}</span>
+                  </div>
+                </div>
+
+                <div className="job-footer">
+                  <div className="job-provider">
+                    <strong style={{ color: '#999' }}>{t.budget}</strong>
+                    <span style={{ fontSize: '20px', fontWeight: '700', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      ₹{job.budget}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ textAlign: 'right', fontSize: '13px', color: '#666' }}>
+                      {jobApplicants.length} {t.applicants?.toLowerCase() || 'applicants'} so far
+                    </div>
                     <button 
                       onClick={() => handleApply(job.id)}
-                      className="btn btn-primary"
+                      className={`btn ${hasUserApplied ? 'btn-secondary' : 'btn-primary'}`}
                       disabled={hasUserApplied}
+                      style={{ opacity: hasUserApplied ? 0.6 : 1, cursor: hasUserApplied ? 'not-allowed' : 'pointer' }}
                     >
-                      {hasUserApplied ? t.applied : t.applyNow}
+                      {hasUserApplied ? '✅ ' + t.applied : '➕ ' + t.applyNow}
                     </button>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                      {jobApplicants.length} {t.applicants.toLowerCase()} so far
-                    </div>
                   </div>
                 </div>
               </div>

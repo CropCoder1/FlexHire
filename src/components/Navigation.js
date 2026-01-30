@@ -31,20 +31,20 @@ const Navigation = ({ user, onLogout }) => {
             marginRight: '30px',
           }}
         >
-          {t.appName}
+          🚀 {t.appName}
         </Link>
 
         {/* Menu Links */}
-        <Link to="/dashboard">{t.dashboard}</Link>
+        <Link to="/dashboard">📊 {t.dashboard}</Link>
 
         <Link to="/job-provider">
-          {user?.userType === 'jobProvider' ? t.postJobs : t.browseJobs}
+          {user?.userType === 'jobProvider' ? '➕ ' + t.postJobs : '🔍 ' + t.browseJobs}
         </Link>
 
         {/* ✅ ONLY CHANGE IS HERE */}
-        <Link to="/job-seeker">{t.findJob}</Link>
+        <Link to="/job-seeker">💼 {t.findJob}</Link>
 
-        <Link to="/profile">{t.profile}</Link>
+        <Link to="/profile">👤 {t.profile}</Link>
       </div>
 
       {/* Right Side */}
@@ -129,7 +129,7 @@ const Navigation = ({ user, onLogout }) => {
             fontWeight: 'bold',
           }}
         >
-          {user?.userType === 'jobSeeker' ? t.jobSeeker : t.jobProvider}
+          {user?.userType === 'jobSeeker' ? '👨‍💼 ' + t.jobSeeker : '🏢 ' + t.jobProvider}
         </span>
 
         <button
@@ -144,7 +144,7 @@ const Navigation = ({ user, onLogout }) => {
             fontWeight: 'bold',
           }}
         >
-          {t.logout}
+          🚪 {t.logout}
         </button>
       </div>
     </nav>
