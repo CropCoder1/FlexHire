@@ -1,0 +1,57 @@
+/* AI Assistant Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(66, 165, 245, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(66, 165, 245, 0.7);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ai-bot-button {
+  animation: float 3s ease-in-out infinite, pulse 2s ease-in-out infinite;
+}
+
+.ai-chat-window {
+  animation: slideUp 0.4s ease-out;
+}
+
+.ai-message {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.ai-assistant-container {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 9998;
+}
